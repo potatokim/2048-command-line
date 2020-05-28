@@ -1,19 +1,21 @@
+package main;
+
 public class Tile {
     private int value;
 
-    Tile(int value) {
+    protected Tile(int value) {
         this.value = value;
     }
 
-    public void setValue(int value) {
+    protected void setValue(int value) {
         this.value = value;
     }
 
-    public void clear() {
+    protected void clear() {
         this.value = 0;
     }
 
-    public void moveTileValue(Tile dest) {
+    protected void moveTileValue(Tile dest) {
         dest.value = this.value;
         clear();
     }

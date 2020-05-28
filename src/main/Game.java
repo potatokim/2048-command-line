@@ -1,3 +1,5 @@
+package main;
+
 import java.util.Random;
 import java.util.Scanner;
 
@@ -16,16 +18,16 @@ public class Game {
         RIGHT;
     }
 
-    final static int BOARD_SIZE = 4;
-    final static int EMPTY_TILE_VALUE = 0;
-    final static int[] TILE_VALUES = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
-    final static int TARGET = 2048;
+    public final static int BOARD_SIZE = 4;
+    public final static int EMPTY_TILE_VALUE = 0;
+    public final static int[] TILE_VALUES = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
+    public final static int TARGET = 2048;
 
-    Tile[][] tiles;
-    GameState gameState;
-    boolean moved; // if (moved) && (isRunning()) createTile()
-    int greatestTile;
-    int score;
+    public Tile[][] tiles;
+    public GameState gameState;
+    public boolean moved; // if (moved) && (isRunning()) createTile()
+    public int greatestTile;
+    public int score;
 
     public Game() {
         tiles = new Tile[BOARD_SIZE][BOARD_SIZE];
@@ -46,8 +48,8 @@ public class Game {
         while (true) {
             if (gameState == GameState.STARTED) {
                 gameState = GameState.RUNNING;
-                addTile(true);
-                addTile(true);
+                addRandomTile(true);
+                addRandomTile(true);
                 drawBoard();
                 waitForMove();
             } else if (gameState == GameState.LOST) {
@@ -57,7 +59,7 @@ public class Game {
                 System.out.println("=== YOU WON ===");
                 break;
             } else {
-                addTile(false);
+                addRandomTile(false);
                 drawBoard();
                 waitForMove();
             }
@@ -76,12 +78,16 @@ public class Game {
     }
 
     // generate random tiles of 2 or 4 at random empty location
-    private void addTile(boolean tileValueIs2) {
+    public void addRandomTile(boolean tileValueIs2) {
         int x, y;
         do {
             x = new Random().nextInt(BOARD_SIZE);
             y = new Random().nextInt(BOARD_SIZE);
         } while (tiles[x][y].getValue() != EMPTY_TILE_VALUE);
+        addTile(x, y, tileValueIs2);
+    }
+
+    public void addTile(int x, int y, boolean tileValueIs2) {
         if (tileValueIs2)
             tiles[x][y].setValue(2);
         else
@@ -124,7 +130,7 @@ public class Game {
     }
 
     // TODO: implement merge for all move methods + optimize gravity + refactor move
-    private void moveUp() {
+    public void moveUp() {
         for (int x = 0; x < BOARD_SIZE; x++) {
             for (int y = 1; y < BOARD_SIZE; y++) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
@@ -141,7 +147,7 @@ public class Game {
         }
     }
 
-    private void moveDown() {
+    public void moveDown() {
         for (int x = 0; x < BOARD_SIZE; x++) {
             for (int y = 2; y >= 0; y--) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
@@ -158,7 +164,7 @@ public class Game {
         }
     }
 
-    private void moveLeft() {
+    public void moveLeft() {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 1; x < BOARD_SIZE; x++) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
@@ -175,7 +181,7 @@ public class Game {
         }
     }
 
-    private void moveRight() {
+    public void moveRight() {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 2; x >= 0; x--) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
