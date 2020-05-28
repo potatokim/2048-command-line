@@ -99,28 +99,23 @@ public class Game {
         moved = false;
         Scanner s = new Scanner(System.in);
         String move;
-        MoveDirection dir;
         while (!moved) {
             move = s.next();
             move = move.toUpperCase();
             switch (move) {
                 case "A":
-                    dir = MoveDirection.LEFT;
                     moveLeft();
                     moved = true;
                     break;
                 case "W":
-                    dir = MoveDirection.UP;
                     moveUp();
                     moved = true;
                     break;
                 case "S":
-                    dir = MoveDirection.DOWN;
                     moveDown();
                     moved = true;
                     break;
                 case "D":
-                    dir = MoveDirection.RIGHT;
                     moveRight();
                     moved = true;
                     break;
@@ -136,8 +131,10 @@ public class Game {
             for (int y = 0; y < BOARD_SIZE; y++) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
                     int i = findMergeableTile(x, y, MoveDirection.UP);
-                    if (i != -1)
-                        mergeAndClearTiles(x, y, x, i);
+                    if (i != -1) {
+                        score += tiles[x][y].getValue();
+                        tiles[x][y].mergeAndClearTiles(tiles[x][i]);
+                    }
                     gravityUp(x, y);
                 }
             }
@@ -156,8 +153,10 @@ public class Game {
             for (int y = BOARD_SIZE - 1; y >= 0; y--) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
                     int i = findMergeableTile(x, y, MoveDirection.DOWN);
-                    if (i != -1)
-                        mergeAndClearTiles(x, y, x, i);
+                    if (i != -1) {
+                        score += tiles[x][y].getValue();
+                        tiles[x][y].mergeAndClearTiles(tiles[x][i]);
+                    }
                     gravityDown(x, y);
                 }
             }
@@ -176,8 +175,10 @@ public class Game {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
                     int i = findMergeableTile(x, y, MoveDirection.LEFT);
-                    if (i != -1)
-                        mergeAndClearTiles(x, y, i, y);
+                    if (i != -1) {
+                        score += tiles[x][y].getValue();
+                        tiles[x][y].mergeAndClearTiles(tiles[i][y]);
+                    }
                     gravityLeft(x, y);
                 }
             }
@@ -196,8 +197,10 @@ public class Game {
             for (int x = BOARD_SIZE - 1; x >= 0; x--) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
                     int i = findMergeableTile(x, y, MoveDirection.RIGHT);
-                    if (i != -1)
-                        mergeAndClearTiles(x, y, i, y);
+                    if (i != -1) {
+                        score += tiles[x][y].getValue();
+                        tiles[x][y].mergeAndClearTiles(tiles[i][y]);
+                    }
                     gravityRight(x, y);
                 }
             }
@@ -241,22 +244,6 @@ public class Game {
                 System.out.println("ERROR");
         }
         return -1;
-    }
-
-    // REQUIRES: values are equal
-    private void mergeAndClearTiles(int x0, int y0, int x1, int y1) {
-        if (tiles[x0][y0].getValue() != tiles[x1][y1].getValue()) {
-            System.out.println("ERROR");
-        }
-        else {
-            int n = tiles[x0][y0].getValue() + tiles[x1][y1].getValue();
-            tiles[x0][y0].setValue(n);
-            tiles[x1][y1].setValue(EMPTY_TILE_VALUE);
-        }
-    }
-
-    private boolean isWithinBound(int i) {
-        return 0 <= i && i < BOARD_SIZE;
     }
 
 //    public boolean isLost() {

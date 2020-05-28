@@ -1,6 +1,7 @@
 package main;
 
 public class Tile {
+    public final static int EMPTY_TILE_VALUE = 0;
     private int value;
 
     protected Tile(int value) {
@@ -12,12 +13,22 @@ public class Tile {
     }
 
     protected void clear() {
-        this.value = 0;
+        this.value = EMPTY_TILE_VALUE;
     }
 
     protected void moveTileValue(Tile dest) {
         dest.value = this.value;
         clear();
+    }
+
+    public void mergeAndClearTiles(Tile cleared) {
+        if (this.value != cleared.value) {
+            System.out.println("ERROR");
+        }
+        else {
+            this.value *= 2;
+            cleared.clear();
+        }
     }
 
     public int getValue() {
