@@ -51,7 +51,7 @@ public class Game {
                 addRandomTile(true);
                 addRandomTile(true);
                 drawBoard();
-                waitForMove();
+                move();
             } else if (gameState == GameState.LOST) {
                 System.out.println("=== YOU LOST ===");
                 break;
@@ -61,13 +61,13 @@ public class Game {
             } else {
                 addRandomTile(false);
                 drawBoard();
-                waitForMove();
+                move();
             }
         }
     }
 
-    private void drawBoard() {
-        System.out.println("(LEFT: A) (UP: W) (DOWN: S) (RIGHT D)");
+    public void drawBoard() {
+        System.out.println("(LEFT: A) (UP: W) (DOWN: S) (RIGHT: D)");
         System.out.println("SCORE: " + score);
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
@@ -94,7 +94,8 @@ public class Game {
             tiles[x][y].setValue(new Random().nextInt() % 2 == 0 ? 2 : 4);
     }
 
-    private void waitForMove() {
+    // TODO: calculate score + check for winning/losing statuses (at end of iteration)
+    private void move() {
         moved = false;
         Scanner s = new Scanner(System.in);
         String move;
@@ -132,8 +133,11 @@ public class Game {
     // TODO: implement merge for all move methods + optimize gravity + refactor move
     public void moveUp() {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            for (int y = 1; y < BOARD_SIZE; y++) {
+            for (int y = 0; y < BOARD_SIZE; y++) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
+                    int i = findMergeableTile(x, y, MoveDirection.UP);
+                    if (i != -1)
+                        mergeAndClearTiles(x, y, x, i);
                     gravityUp(x, y);
                 }
             }
@@ -149,8 +153,11 @@ public class Game {
 
     public void moveDown() {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            for (int y = 2; y >= 0; y--) {
+            for (int y = BOARD_SIZE - 1; y >= 0; y--) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
+                    int i = findMergeableTile(x, y, MoveDirection.DOWN);
+                    if (i != -1)
+                        mergeAndClearTiles(x, y, x, i);
                     gravityDown(x, y);
                 }
             }
@@ -166,8 +173,11 @@ public class Game {
 
     public void moveLeft() {
         for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 1; x < BOARD_SIZE; x++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
+                    int i = findMergeableTile(x, y, MoveDirection.LEFT);
+                    if (i != -1)
+                        mergeAndClearTiles(x, y, i, y);
                     gravityLeft(x, y);
                 }
             }
@@ -183,8 +193,11 @@ public class Game {
 
     public void moveRight() {
         for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 2; x >= 0; x--) {
+            for (int x = BOARD_SIZE - 1; x >= 0; x--) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
+                    int i = findMergeableTile(x, y, MoveDirection.RIGHT);
+                    if (i != -1)
+                        mergeAndClearTiles(x, y, i, y);
                     gravityRight(x, y);
                 }
             }
@@ -198,8 +211,52 @@ public class Game {
         }
     }
 
-    private void mergeAndClearTiles() {
+    private int findMergeableTile(int x, int y, MoveDirection m) {
+        switch (m) {
+            case UP:
+                for (int i = y+1; i < BOARD_SIZE; i++) {
+                    if (tiles[x][i].getValue() != EMPTY_TILE_VALUE)
+                        return i;
+                }
+                break;
+            case DOWN:
+                for (int i = y-1; i >= 0; i--) {
+                    if (tiles[x][i].getValue() != EMPTY_TILE_VALUE)
+                        return i;
+                }
+                break;
+            case LEFT:
+                for (int i = x+1; i < BOARD_SIZE; i++) {
+                    if (tiles[i][y].getValue() != EMPTY_TILE_VALUE)
+                        return i;
+                }
+                break;
+            case RIGHT:
+                for (int i = x-1; i >= 0; i--) {
+                    if (tiles[i][y].getValue() != EMPTY_TILE_VALUE)
+                        return i;
+                }
+                break;
+            default:
+                System.out.println("ERROR");
+        }
+        return -1;
+    }
 
+    // REQUIRES: values are equal
+    private void mergeAndClearTiles(int x0, int y0, int x1, int y1) {
+        if (tiles[x0][y0].getValue() != tiles[x1][y1].getValue()) {
+            System.out.println("ERROR");
+        }
+        else {
+            int n = tiles[x0][y0].getValue() + tiles[x1][y1].getValue();
+            tiles[x0][y0].setValue(n);
+            tiles[x1][y1].setValue(EMPTY_TILE_VALUE);
+        }
+    }
+
+    private boolean isWithinBound(int i) {
+        return 0 <= i && i < BOARD_SIZE;
     }
 
 //    public boolean isLost() {
