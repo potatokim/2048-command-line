@@ -20,13 +20,14 @@ public class Game {
 
     public final static int BOARD_SIZE = 4;
     public final static int EMPTY_TILE_VALUE = 0;
-    public final static int[] TILE_VALUES = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
+//    public final static int[] TILE_VALUES = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
     public final static int TARGET = 2048;
 
     public Tile[][] tiles;
     public GameState gameState;
-    public boolean moved; // if (moved) && (isRunning()) createTile()
+    public boolean moved;
     public int greatestTile;
+    public int emptyTilesLeft;
     public int score;
 
     public Game() {
@@ -34,6 +35,7 @@ public class Game {
         gameState = GameState.STARTED;
         moved = false;
         score = 0;
+        emptyTilesLeft = BOARD_SIZE * BOARD_SIZE;
         greatestTile = 2;
 
         for (int y = 0; y < BOARD_SIZE; y++) {
@@ -62,7 +64,6 @@ public class Game {
                 addRandomTile(false);
                 drawBoard();
                 move();
-                updateStatusIfLost();
             }
         }
     }
@@ -89,17 +90,33 @@ public class Game {
     }
 
     public void addTile(int x, int y, boolean tileValueIs2) {
-        if (tileValueIs2)
-            tiles[x][y].setValue(2);
-        else
-            tiles[x][y].setValue(new Random().nextInt() % 2 == 0 ? 2 : 4);
+        if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
+            System.out.println("ERROR");
+        } else {
+            if (tileValueIs2)
+                tiles[x][y].setValue(2);
+            else
+                tiles[x][y].setValue(new Random().nextInt() % 2 == 0 ? 2 : 4);
+
+            emptyTilesLeft--;
+            if (emptyTilesLeft == 0 && !isThereAnyAvailableMove())
+                gameState = GameState.LOST;
+        }
     }
 
-    private void updateStatusIfLost() {
-        // stub
+    public boolean isThereAnyAvailableMove() {
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
+                if (findMergeableTile(x, y, MoveDirection.UP) != -1 ||
+                        findMergeableTile(x, y, MoveDirection.DOWN) != -1 ||
+                        findMergeableTile(x, y, MoveDirection.LEFT) != -1 ||
+                        findMergeableTile(x, y, MoveDirection.RIGHT) != -1)
+                    return true;
+            }
+        }
+        return false;
     }
 
-    // TODO: calculate score + check for winning/losing statuses (at end of iteration)
     private void move() {
         moved = false;
         Scanner s = new Scanner(System.in);
@@ -130,7 +147,6 @@ public class Game {
         }
     }
 
-    // TODO: implement merge for all move methods + optimize gravity + refactor move
     public void moveUp() {
         for (int x = 0; x < BOARD_SIZE; x++) {
             for (int y = 0; y < BOARD_SIZE; y++) {
@@ -149,17 +165,6 @@ public class Game {
             tiles[x][y].moveTileValue(tiles[x][y-1]);
             y--;
         }
-    }
-
-    private void handleMerge(int x, int y, int i, boolean isHorizontal) {
-        // score += tiles[x][y].getValue() * 2;
-        if (isHorizontal)
-            tiles[x][y].mergeAndClearTiles(tiles[i][y]);
-        else
-            tiles[x][y].mergeAndClearTiles(tiles[x][i]);
-        score += tiles[x][y].getValue();
-        if (tiles[x][y].getValue() == TARGET)
-            gameState = GameState.WON;
     }
 
     public void moveDown() {
@@ -263,29 +268,19 @@ public class Game {
         return -1;
     }
 
-//    public boolean isLost() {
-//        for (int y = 0; y < BOARD_SIZE; y++) {
-//            for (int x = 0; x < BOARD_SIZE; x++) {
-//                if (!tiles[x][y].isTaken)
-//                    return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    public boolean isWon() {
-//        for (int y = 0; y < BOARD_SIZE; y++) {
-//            for (int x = 0; x < BOARD_SIZE; x++) {
-//                if (tiles[x][y].value == TARGET)
-//                    return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    public boolean isRunning() {
-//        return !(isLost() || isWon());
-//    }
+
+    private void handleMerge(int x, int y, int i, boolean isHorizontal) {
+        if (isHorizontal)
+            tiles[x][y].mergeAndClearTiles(tiles[i][y]);
+        else
+            tiles[x][y].mergeAndClearTiles(tiles[x][i]);
+
+        score += tiles[x][y].getValue();
+        emptyTilesLeft++;
+
+        if (tiles[x][y].getValue() == TARGET)
+            gameState = GameState.WON;
+    }
 
     public static void main(String[] args) {
         Game game = new Game();
