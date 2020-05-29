@@ -17,6 +17,70 @@ public class GameTest {
     }
 
     @Test
+    public void testBasicMoveAdjacentTilesAtEdgeMergeable() {
+        game.addTile(0, 0,16);
+        game.addTile(0, 1, 16);
+
+        game.moveUp();
+        assertEquals(32, game.tiles[0][0].getValue());
+        assertEquals(game.EMPTY_TILE_VALUE, game.tiles[0][1].getValue());
+        assertEquals(32, game.score);
+        // check stt
+    }
+
+    @Test
+    public void testBasicMoveAdjacentTilesInMiddleMergeable() {
+        game.addTile(1, 1,8);
+        game.addTile(1, 2, 8);
+
+        game.moveDown();
+        assertEquals(16, game.tiles[1][3].getValue());
+        assertEquals(game.EMPTY_TILE_VALUE, game.tiles[1][1].getValue());
+        assertEquals(game.EMPTY_TILE_VALUE, game.tiles[1][2].getValue());
+        assertEquals(16, game.score);
+        // check stt
+    }
+
+    @Test
+    public void testBasicMoveNonAdjacentTilesMergeable() {
+        game.addTile(0, 3,1024);
+        game.addTile(3, 3, 1024);
+
+        game.moveLeft();
+        assertEquals(2048, game.tiles[0][3].getValue());
+        assertEquals(game.EMPTY_TILE_VALUE, game.tiles[1][3].getValue());
+        assertEquals(game.EMPTY_TILE_VALUE, game.tiles[3][3].getValue());
+        assertEquals(2048, game.score);
+        // check stt
+    }
+
+    @Test
+    public void testBasicMoveNonMergeableHorizontal() {
+        game.addTile(0, 3,128);
+        game.addTile(3, 3, 2);
+
+        game.moveRight();
+        assertEquals(2, game.tiles[3][3].getValue());
+        assertEquals(128, game.tiles[2][3].getValue());
+        assertEquals(game.EMPTY_TILE_VALUE, game.tiles[0][3].getValue());
+        assertEquals(0, game.score);
+        // check stt
+    }
+
+    @Test
+    public void testBasicMoveNonMergeableVertical() {
+        game.addTile(0, 0,4);
+        game.addTile(0, 2, 64);
+
+        game.moveDown();
+        assertEquals(4, game.tiles[0][2].getValue());
+        assertEquals(64, game.tiles[0][3].getValue());
+        assertEquals(game.EMPTY_TILE_VALUE, game.tiles[0][0].getValue());
+        assertEquals(0, game.score);
+        // check stt
+    }
+
+    @Test
     public void testBasicMoves() {
         game.addTile(1, 1,2);
         game.addTile(1, 2, 2);
@@ -40,7 +104,6 @@ public class GameTest {
         prevScore = game.score;
         game.addTile(3, 3, 2);
 
-        game.drawBoard();
         game.moveLeft();
         assertEquals(4, game.tiles[0][2].getValue());
         assertEquals(4, game.tiles[0][3].getValue());
@@ -98,9 +161,18 @@ public class GameTest {
         game.moveLeft();
         assertEquals(4, game.tiles[0][0].getValue());
         assertEquals(8, game.tiles[0][1].getValue());
+        assertEquals(4, game.tiles[0][2].getValue());
+        assertEquals(8, game.tiles[0][3].getValue());
         assertEquals(2, game.tiles[1][0].getValue());
         assertEquals(game.EMPTY_TILE_VALUE, game.tiles[1][1].getValue());
+        assertEquals(32, game.tiles[1][2].getValue());
+        assertEquals(2, game.tiles[1][3].getValue());
         assertEquals(game.EMPTY_TILE_VALUE, game.tiles[2][0].getValue());
+        assertEquals(game.EMPTY_TILE_VALUE, game.tiles[2][1].getValue());
+        assertEquals(2, game.tiles[2][2].getValue());
+        assertEquals(32, game.tiles[2][3].getValue());
+        assertEquals(4, game.tiles[3][2].getValue());
+        assertEquals(2, game.tiles[3][3].getValue());
         assertEquals(0, game.score - prevScore);
 
         game.addTile(3, 0, 2);
