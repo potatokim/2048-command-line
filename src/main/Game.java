@@ -61,7 +61,8 @@ public class Game {
                 System.out.println("=== YOU WON ===");
                 break;
             } else {
-                addRandomTile(false);
+                if (moved)
+                    addRandomTile(false);
                 drawBoard();
                 move();
             }
@@ -121,29 +122,22 @@ public class Game {
         moved = false;
         Scanner s = new Scanner(System.in);
         String move;
-        while (!moved) {
-            move = s.next();
-            move = move.toUpperCase();
-            switch (move) {
-                case "A":
-                    moveLeft();
-                    moved = true;
-                    break;
-                case "W":
-                    moveUp();
-                    moved = true;
-                    break;
-                case "S":
-                    moveDown();
-                    moved = true;
-                    break;
-                case "D":
-                    moveRight();
-                    moved = true;
-                    break;
-                default:
-                    moved = false;
-            }
+        move = s.next();
+        move = move.toUpperCase();
+        switch (move) {
+            case "A":
+                moveLeft();
+                break;
+            case "W":
+                moveUp();
+                break;
+            case "S":
+                moveDown();
+                break;
+            case "D":
+                moveRight();
+                break;
+            default:
         }
     }
 
@@ -152,8 +146,10 @@ public class Game {
             for (int y = 0; y < BOARD_SIZE; y++) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
                     int i = findMergeableTile(x, y, MoveDirection.UP);
-                    if (i != -1)
+                    if (i != -1) {
+                        moved = true;
                         handleMerge(x, y, i, false);
+                    }
                     gravityUp(x, y);
                 }
             }
@@ -162,6 +158,7 @@ public class Game {
 
     private void gravityUp(int x, int y) {
         while (y > 0 && tiles[x][y-1].getValue() == EMPTY_TILE_VALUE) {
+            moved = true;
             tiles[x][y].moveTileValue(tiles[x][y-1]);
             y--;
         }
@@ -172,8 +169,10 @@ public class Game {
             for (int y = BOARD_SIZE - 1; y >= 0; y--) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
                     int i = findMergeableTile(x, y, MoveDirection.DOWN);
-                    if (i != -1)
+                    if (i != -1) {
+                        moved = true;
                         handleMerge(x, y, i, false);
+                    }
                     gravityDown(x, y);
                 }
             }
@@ -182,6 +181,7 @@ public class Game {
 
     private void gravityDown(int x, int y) {
         while (y < BOARD_SIZE - 1 && tiles[x][y+1].getValue() == EMPTY_TILE_VALUE) {
+            moved = true;
             tiles[x][y].moveTileValue(tiles[x][y+1]);
             y++;
         }
@@ -192,8 +192,10 @@ public class Game {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
                     int i = findMergeableTile(x, y, MoveDirection.LEFT);
-                    if (i != -1)
+                    if (i != -1) {
+                        moved = true;
                         handleMerge(x, y, i, true);
+                    }
                     gravityLeft(x, y);
                 }
             }
@@ -202,6 +204,7 @@ public class Game {
 
     private void gravityLeft(int x, int y) {
         while (x > 0 && tiles[x-1][y].getValue() == EMPTY_TILE_VALUE) {
+            moved = true;
             tiles[x][y].moveTileValue(tiles[x-1][y]);
             x--;
         }
@@ -212,8 +215,10 @@ public class Game {
             for (int x = BOARD_SIZE - 1; x >= 0; x--) {
                 if (tiles[x][y].getValue() != EMPTY_TILE_VALUE) {
                     int i = findMergeableTile(x, y, MoveDirection.RIGHT);
-                    if (i != -1)
+                    if (i != -1) {
+                        moved = true;
                         handleMerge(x, y, i, true);
+                    }
                     gravityRight(x, y);
                 }
             }
@@ -222,6 +227,7 @@ public class Game {
 
     private void gravityRight(int x, int y) {
         while (x < BOARD_SIZE - 1 && tiles[x+1][y].getValue() == EMPTY_TILE_VALUE) {
+            moved = true;
             tiles[x][y].moveTileValue(tiles[x+1][y]);
             x++;
         }
